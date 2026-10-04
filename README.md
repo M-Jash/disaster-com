@@ -169,6 +169,9 @@ pip install -r requirements.txt
 
 # Run automated tests to verify networking stack
 pytest -v
+
+# run backend
+python main.py
 ```
 
 ### 2. Setup Frontend
@@ -223,6 +226,7 @@ All backend networking routines are thoroughly tested with Pytest:
 ```bash
 cd backend
 pytest -v
+python main.py
 ```
 
 ### Test Coverage Summary:
