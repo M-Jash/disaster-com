@@ -35,10 +35,10 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({ incide
   };
 
   const statusOptions: { id: IncidentStatus; label: string; color: string }[] = [
-    { id: 'NEW', label: 'New', color: 'bg-red-950 text-red-400 border-red-800' },
-    { id: 'ACKNOWLEDGED', label: 'Acknowledged', color: 'bg-amber-950 text-amber-400 border-amber-800' },
-    { id: 'IN_PROGRESS', label: 'In Progress', color: 'bg-cyan-950 text-cyan-400 border-cyan-800' },
-    { id: 'RESOLVED', label: 'Resolved', color: 'bg-emerald-950 text-emerald-400 border-emerald-800' },
+    { id: 'NEW', label: 'New', color: 'bg-[#ff4e18] text-white' },
+    { id: 'ACKNOWLEDGED', label: 'Acknowledged', color: 'bg-amber-100 text-amber-900 border border-amber-300' },
+    { id: 'IN_PROGRESS', label: 'In Progress', color: 'bg-blue-100 text-blue-900 border border-blue-300' },
+    { id: 'RESOLVED', label: 'Resolved', color: 'bg-emerald-100 text-emerald-900 border border-emerald-300' },
   ];
 
   const relayPath = incident.relay_path || [incident.sender];
@@ -52,39 +52,39 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({ incide
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="w-full max-w-2xl bg-[#eaf1f1] text-slate-900 border border-white/80 rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="px-6 py-4 bg-gradient-to-r from-slate-900 to-slate-950 border-b border-slate-800 flex items-center justify-between">
+        <div className="px-6 py-4 bg-white/70 border-b border-slate-300/70 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-xl bg-red-600/20 text-red-400 border border-red-500/40">
+            <div className="p-2.5 rounded-full bg-[#ff4e18] text-white">
               <AlertOctagon className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="text-base font-bold text-white font-mono">{incident.msg_id}</h2>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-950 text-red-400 border border-red-800">
+                <h2 className="text-base font-black text-slate-900 font-mono">{incident.msg_id}</h2>
+                <span className="px-3 py-0.5 rounded-full text-[10px] font-bold bg-[#ff4e18] text-white">
                   {incident.priority}
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
-                Category: <strong className="text-white">{incident.category}</strong> • Origin: <span className="font-mono text-cyan-400">{incident.sender}</span>
+              <p className="text-xs text-slate-600 font-mono">
+                Category: <strong className="text-slate-900">{incident.category}</strong> • Origin: <span className="font-mono text-[#ff4e18] font-bold">{incident.sender}</span>
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition"
+            className="p-2 rounded-full bg-white text-slate-600 hover:text-slate-900 border border-slate-200 transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto space-y-6">
+        <div className="p-6 overflow-y-auto space-y-5">
           {/* Status Bar / Workflow */}
-          <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
+            <label className="block text-xs font-mono font-black text-slate-800 uppercase tracking-wider mb-2">
               Responder Triage Status
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -95,10 +95,10 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({ incide
                     key={opt.id}
                     disabled={isUpdating}
                     onClick={() => handleStatusChange(opt.id)}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold border transition text-center ${
+                    className={`py-2 px-3 rounded-full text-xs font-mono font-bold border transition text-center ${
                       isActive
-                        ? `${opt.color} shadow-md scale-[1.02] ring-1 ring-cyan-400`
-                        : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:border-slate-700'
+                        ? `${opt.color} shadow-md scale-[1.02] ring-2 ring-[#ff4e18]/40`
+                        : 'bg-[#eaf1f1] text-slate-700 border-slate-200 hover:border-slate-300'
                     }`}
                   >
                     {opt.label}
@@ -110,32 +110,32 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({ incide
 
           {/* Original Emergency Message Text */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <label className="block text-xs font-mono font-black text-slate-800 uppercase tracking-wider">
               Emergency Message Content
             </label>
-            <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-sm text-slate-100 leading-relaxed font-sans">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 text-sm text-slate-900 leading-relaxed font-sans font-medium shadow-sm">
               "{incident.text}"
             </div>
           </div>
 
           {/* Location & Coordinates */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-1">
-              <div className="flex items-center space-x-1.5 text-xs text-slate-400 font-semibold">
-                <MapPin className="w-4 h-4 text-cyan-400" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-1 shadow-sm">
+              <div className="flex items-center space-x-1.5 text-xs text-slate-500 font-bold">
+                <MapPin className="w-4 h-4 text-[#ff4e18]" />
                 <span>Location Landmark</span>
               </div>
-              <div className="text-sm font-medium text-white">
+              <div className="text-sm font-bold text-slate-900 font-sans">
                 {incident.location_desc || 'No manual description provided'}
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-1">
-              <div className="flex items-center space-x-1.5 text-xs text-slate-400 font-semibold">
-                <Navigation className="w-4 h-4 text-emerald-400" />
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-1 shadow-sm">
+              <div className="flex items-center space-x-1.5 text-xs text-slate-500 font-bold">
+                <Navigation className="w-4 h-4 text-emerald-600" />
                 <span>GPS Coordinates</span>
               </div>
-              <div className="text-sm font-mono text-emerald-300">
+              <div className="text-sm font-mono text-emerald-800 font-bold">
                 {incident.latitude != null && incident.longitude != null
                   ? `${incident.latitude.toFixed(5)}, ${incident.longitude.toFixed(5)}`
                   : 'GPS Unavailable (Offline/Manual)'}
@@ -144,13 +144,13 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({ incide
           </div>
 
           {/* Computer Networks Multi-Hop Relay Path Visualizer */}
-          <div className="p-4 rounded-2xl bg-slate-950 border border-cyan-950/60 space-y-3">
+          <div className="p-5 rounded-3xl bg-white border border-slate-200 space-y-3 font-mono shadow-sm">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+              <label className="text-xs font-black text-[#ff4e18] uppercase tracking-wider flex items-center gap-1.5">
                 <Route className="w-4 h-4" />
                 Multi-Hop Packet Relay Path
               </label>
-              <span className="text-xs text-slate-400 font-mono">
+              <span className="text-xs text-slate-500 font-mono font-bold">
                 {incident.hop_count} hops remaining (Initial: {incident.initial_hops || 5})
               </span>
             </div>
@@ -163,16 +163,18 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({ incide
                 return (
                   <React.Fragment key={idx}>
                     <div
-                      className={`w-full max-w-md px-4 py-2 rounded-xl text-xs font-mono flex items-center justify-between border ${
+                      className={`w-full max-w-md px-4 py-2.5 rounded-2xl text-xs font-mono flex items-center justify-between border ${
                         isOrigin
-                          ? 'bg-red-950/40 text-red-300 border-red-800/60'
+                          ? 'bg-[#ff4e18] text-white border-transparent'
                           : isCurrent
-                          ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60'
-                          : 'bg-cyan-950/30 text-cyan-300 border-cyan-800/50'
+                          ? 'bg-emerald-100 text-emerald-900 border-emerald-300 font-bold'
+                          : 'bg-[#eaf1f1] text-slate-800 border-slate-200'
                       }`}
                     >
                       <div className="flex items-center space-x-2">
-                        <span className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-[10px] text-slate-300">
+                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                          isOrigin ? 'bg-black text-white' : 'bg-white text-slate-800'
+                        }`}>
                           {idx + 1}
                         </span>
                         <span className="font-bold">{nodeId}</span>
@@ -183,7 +185,7 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({ incide
                     </div>
 
                     {idx < fullPath.length - 1 && (
-                      <ArrowDown className="w-4 h-4 text-slate-600 animate-bounce" />
+                      <ArrowDown className="w-4 h-4 text-slate-400 animate-bounce" />
                     )}
                   </React.Fragment>
                 );
@@ -193,11 +195,11 @@ export const IncidentDetailModal: React.FC<IncidentDetailModalProps> = ({ incide
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500">
+        <div className="px-6 py-4 bg-white/70 border-t border-slate-300/70 flex items-center justify-between text-xs text-slate-600 font-mono font-medium">
           <span>Received at: {new Date(incident.timestamp).toLocaleString()}</span>
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold transition"
+            className="px-6 py-2 rounded-full bg-[#12151b] hover:bg-slate-800 text-white font-semibold transition"
           >
             Close
           </button>

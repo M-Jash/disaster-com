@@ -42,6 +42,7 @@ def trigger_sos_alert(
             category=req.category,
             location=req.location,
             sender_name=req.sender_name,
+            sender_id=req.sender_id,
             hop_count=req.hop_count
         )
         return MessageResponse(**packet.model_dump())

@@ -15,6 +15,7 @@ import {
   HelpCircle,
   Send,
   Radio,
+  ShieldAlert,
 } from 'lucide-react';
 
 interface SOSModalProps {
@@ -28,7 +29,7 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose }) => {
   const [category, setCategory] = useState<EmergencyCategory>('MEDICAL');
   const [priority, setPriority] = useState<PriorityLevel>('CRITICAL');
   const [text, setText] = useState<string>('');
-  const [senderName, setSenderName] = useState<string>('');
+  const [senderName, setSenderName] = useState<string>(() => sessionStorage.getItem('decs_user_name') || '');
   const [locationDesc, setLocationDesc] = useState<string>('');
   const [latitude, setLatitude] = useState<string>('');
   const [longitude, setLongitude] = useState<string>('');
@@ -39,14 +40,14 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  const categories: { id: EmergencyCategory; label: string; icon: any; color: string }[] = [
-    { id: 'MEDICAL', label: 'Medical Assistance', icon: HeartPulse, color: 'text-rose-400 border-rose-600/40 bg-rose-950/20' },
-    { id: 'TRAPPED', label: 'Trapped / Structural', icon: LifeBuoy, color: 'text-amber-400 border-amber-600/40 bg-amber-950/20' },
-    { id: 'FIRE', label: 'Fire / Explosion', icon: Flame, color: 'text-orange-400 border-orange-600/40 bg-orange-950/20' },
-    { id: 'FLOOD', label: 'Flood / Rising Water', icon: Waves, color: 'text-blue-400 border-blue-600/40 bg-blue-950/20' },
-    { id: 'FOOD_WATER', label: 'Food / Water Supply', icon: Apple, color: 'text-emerald-400 border-emerald-600/40 bg-emerald-950/20' },
-    { id: 'MISSING_PERSON', label: 'Missing Person', icon: UserX, color: 'text-purple-400 border-purple-600/40 bg-purple-950/20' },
-    { id: 'GENERAL', label: 'Other Emergency', icon: HelpCircle, color: 'text-slate-300 border-slate-600/40 bg-slate-900' },
+  const categories: { id: EmergencyCategory; label: string; icon: any; color: string; activeStyle: string }[] = [
+    { id: 'MEDICAL', label: 'Medical Emergency', icon: HeartPulse, color: 'text-slate-800 border-slate-200', activeStyle: 'bg-[#ff4e18] text-white border-transparent shadow-md' },
+    { id: 'TRAPPED', label: 'Trapped / Structural', icon: LifeBuoy, color: 'text-slate-800 border-slate-200', activeStyle: 'bg-[#ff4e18] text-white border-transparent shadow-md' },
+    { id: 'FIRE', label: 'Fire / Explosion', icon: Flame, color: 'text-slate-800 border-slate-200', activeStyle: 'bg-[#ff4e18] text-white border-transparent shadow-md' },
+    { id: 'FLOOD', label: 'Flood / Water Hazard', icon: Waves, color: 'text-slate-800 border-slate-200', activeStyle: 'bg-[#ff4e18] text-white border-transparent shadow-md' },
+    { id: 'FOOD_WATER', label: 'Food / Water Supply', icon: Apple, color: 'text-slate-800 border-slate-200', activeStyle: 'bg-[#ff4e18] text-white border-transparent shadow-md' },
+    { id: 'MISSING_PERSON', label: 'Missing Person', icon: UserX, color: 'text-slate-800 border-slate-200', activeStyle: 'bg-[#ff4e18] text-white border-transparent shadow-md' },
+    { id: 'GENERAL', label: 'Other Emergency', icon: HelpCircle, color: 'text-slate-800 border-slate-200', activeStyle: 'bg-black text-white border-transparent shadow-md' },
   ];
 
   const handleFetchGeolocation = () => {
@@ -66,7 +67,7 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose }) => {
       },
       (err) => {
         setIsLocating(false);
-        setGeoError(`GPS unavailable: ${err.message}. You can enter coordinates or a landmark manually.`);
+        setGeoError(`GPS unavailable: ${err.message}. You can enter coordinates or landmark manually.`);
       },
       { timeout: 8000, enableHighAccuracy: true }
     );
@@ -102,18 +103,18 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-2xl bg-slate-900 border border-red-900/60 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="w-full max-w-2xl bg-[#eaf1f1] text-slate-900 border border-white/80 rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="px-6 py-4 bg-gradient-to-r from-red-950/80 to-slate-900 border-b border-red-900/50 flex items-center justify-between">
+        <div className="px-6 py-4 bg-white/70 border-b border-slate-300/70 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-xl bg-red-600/20 text-red-400 border border-red-500/40 animate-pulse-sos">
-              <AlertTriangle className="w-6 h-6" />
+            <div className="p-2.5 rounded-full bg-[#ff4e18] text-white">
+              <ShieldAlert className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white tracking-wide">
+              <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-wide font-mono">
                 EMERGENCY SOS BROADCAST
               </h2>
-              <p className="text-xs text-red-300/80">
+              <p className="text-xs text-slate-600 font-mono">
                 High-priority multi-hop packet dispatch over UDP mesh
               </p>
             </div>
@@ -121,20 +122,20 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose }) => {
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition"
+            className="p-2 rounded-full bg-white text-slate-600 hover:text-slate-900 border border-slate-200 transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Body */}
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-5 font-mono">
           {/* 1. Category Selection */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-              1. Emergency Category <span className="text-red-400">*</span>
+            <label className="block text-xs font-black text-slate-800 uppercase tracking-wider mb-2">
+              1. Emergency Category <span className="text-[#ff4e18]">*</span>
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {categories.map((cat) => {
                 const Icon = cat.icon;
                 const isSelected = category === cat.id;
@@ -143,10 +144,10 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose }) => {
                     key={cat.id}
                     type="button"
                     onClick={() => setCategory(cat.id)}
-                    className={`flex items-center space-x-2 p-2.5 rounded-xl border text-xs font-semibold transition text-left ${
+                    className={`flex items-center space-x-2.5 p-3 rounded-full border text-xs font-bold transition text-left ${
                       isSelected
-                        ? 'bg-red-600 text-white border-red-500 shadow-md shadow-red-950/60 scale-[1.02]'
-                        : `text-slate-300 ${cat.color} hover:border-slate-600`
+                        ? cat.activeStyle
+                        : `bg-white text-slate-800 ${cat.color} hover:border-slate-300 hover:bg-slate-50`
                     }`}
                   >
                     <Icon className="w-4 h-4 shrink-0" />
@@ -159,23 +160,23 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose }) => {
 
           {/* 2. Emergency Message Details */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-              2. Situation / Message Details <span className="text-red-400">*</span>
+            <label className="block text-xs font-black text-slate-800 uppercase tracking-wider mb-2">
+              2. Situation Details <span className="text-[#ff4e18]">*</span>
             </label>
             <textarea
               required
               rows={3}
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Provide critical situation details: Number of people affected, specific danger, immediate injuries, access restrictions..."
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition"
+              placeholder="Provide critical details: number of people affected, specific hazard, immediate injuries, access restrictions..."
+              className="w-full px-5 py-3.5 rounded-3xl bg-white border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#ff4e18] focus:ring-2 focus:ring-[#ff4e18]/20 transition shadow-sm font-sans"
             />
           </div>
 
           {/* 3. Priority & Caller Alias */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-black text-slate-800 uppercase tracking-wider mb-1.5">
                 Priority Level
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -184,14 +185,12 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose }) => {
                     key={lvl}
                     type="button"
                     onClick={() => setPriority(lvl)}
-                    className={`py-2 rounded-xl text-xs font-bold border transition ${
+                    className={`py-2.5 rounded-full text-xs font-bold border transition ${
                       priority === lvl
                         ? lvl === 'CRITICAL'
-                          ? 'bg-red-600 text-white border-red-500 shadow'
-                          : lvl === 'HIGH'
-                          ? 'bg-amber-600 text-white border-amber-500 shadow'
-                          : 'bg-cyan-600 text-white border-cyan-500 shadow'
-                        : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'
+                          ? 'bg-[#ff4e18] text-white border-transparent shadow'
+                          : 'bg-black text-white border-transparent shadow'
+                        : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
                     }`}
                   >
                     {lvl}
@@ -201,24 +200,24 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose }) => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                Caller Callsign / Name (Optional)
+              <label className="block text-xs font-black text-slate-800 uppercase tracking-wider mb-1.5">
+                Operator Callsign (Optional)
               </label>
               <input
                 type="text"
                 value={senderName}
                 onChange={(e) => setSenderName(e.target.value)}
                 placeholder="e.g. Civilian Alice / Rescue Unit 3"
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-red-500 transition"
+                className="w-full px-4 py-2.5 rounded-full bg-white border border-slate-300 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#ff4e18]"
               />
             </div>
           </div>
 
           {/* 4. Location Information */}
-          <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-3">
+          <div className="p-5 rounded-3xl bg-white border border-slate-200 space-y-3 shadow-sm">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-cyan-400" />
+              <label className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-[#ff4e18]" />
                 Location & Coordinates
               </label>
 
@@ -226,22 +225,22 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose }) => {
                 type="button"
                 onClick={handleFetchGeolocation}
                 disabled={isLocating}
-                className="flex items-center space-x-1 px-3 py-1 rounded-lg bg-cyan-950 text-cyan-300 border border-cyan-800 hover:bg-cyan-900 text-xs transition"
+                className="flex items-center space-x-1.5 px-4 py-1.5 rounded-full bg-[#dce5e7] text-slate-800 hover:bg-slate-200 text-xs font-bold transition"
               >
                 <Compass className={`w-3.5 h-3.5 ${isLocating ? 'animate-spin' : ''}`} />
                 <span>{isLocating ? 'Detecting GPS...' : 'Auto-Detect GPS'}</span>
               </button>
             </div>
 
-            {geoError && <p className="text-[11px] text-amber-400">{geoError}</p>}
+            {geoError && <p className="text-[11px] text-amber-700 font-bold">{geoError}</p>}
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <input
                 type="text"
                 value={locationDesc}
                 onChange={(e) => setLocationDesc(e.target.value)}
-                placeholder="Landmark / Sector / Room # (e.g. Block C, Roof)"
-                className="sm:col-span-1 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                placeholder="Landmark / Sector / Room # (e.g. Block C)"
+                className="sm:col-span-1 px-4 py-2.5 rounded-full bg-[#eaf1f1] border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#ff4e18]"
               />
 
               <input
@@ -250,7 +249,7 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose }) => {
                 value={latitude}
                 onChange={(e) => setLatitude(e.target.value)}
                 placeholder="Latitude (e.g. 12.9716)"
-                className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                className="px-4 py-2.5 rounded-full bg-[#eaf1f1] border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#ff4e18]"
               />
 
               <input
@@ -259,16 +258,16 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose }) => {
                 value={longitude}
                 onChange={(e) => setLongitude(e.target.value)}
                 placeholder="Longitude (e.g. 77.5946)"
-                className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                className="px-4 py-2.5 rounded-full bg-[#eaf1f1] border border-slate-200 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#ff4e18]"
               />
             </div>
           </div>
 
           {/* 5. TTL / Hop Count Slider */}
-          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between text-xs">
+          <div className="p-5 rounded-3xl bg-white border border-slate-200 flex items-center justify-between text-xs shadow-sm">
             <div>
-              <span className="font-semibold text-slate-300">Initial Relay Hop Limit (TTL):</span>
-              <p className="text-[11px] text-slate-500">Number of mesh forward hops before packet expires</p>
+              <span className="font-black text-slate-900">Initial Relay Hop Limit (TTL):</span>
+              <p className="text-[11px] text-slate-500 font-sans">Number of mesh forward hops before packet terminates</p>
             </div>
             <div className="flex items-center space-x-3">
               <input
@@ -277,20 +276,12 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose }) => {
                 max={10}
                 value={hopCount}
                 onChange={(e) => setHopCount(parseInt(e.target.value))}
-                className="w-24 accent-red-500"
+                className="w-24 accent-[#ff4e18]"
               />
-              <span className="font-mono font-bold text-white bg-slate-800 px-2 py-1 rounded-lg border border-slate-700">
+              <span className="font-bold text-slate-900 bg-[#dce5e7] px-3.5 py-1 rounded-full">
                 {hopCount} Hops
               </span>
             </div>
-          </div>
-
-          {/* Disclaimer / Warning Box */}
-          <div className="p-3 rounded-xl bg-red-950/30 border border-red-900/40 text-xs text-red-300/90 flex items-start space-x-2">
-            <Radio className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-            <p>
-              Your SOS will be encoded into a <strong>JSON UDP broadcast packet</strong> and propagated through all nearby participating DECS nodes.
-            </p>
           </div>
 
           {/* Footer Actions */}
@@ -298,7 +289,7 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition"
+              className="px-6 py-2.5 rounded-full bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold transition border border-slate-200"
             >
               Cancel
             </button>
@@ -306,10 +297,10 @@ export const SOSModal: React.FC<SOSModalProps> = ({ isOpen, onClose }) => {
             <button
               type="submit"
               disabled={isSubmitting || !text.trim()}
-              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-xs font-bold shadow-xl shadow-red-950 transition transform hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center space-x-2 px-7 py-2.5 rounded-full bg-[#ff4e18] hover:bg-[#ff6535] disabled:opacity-50 text-white text-xs font-bold shadow-lg shadow-[#ff4e18]/40 transition transform hover:scale-[1.02] active:scale-[0.98]"
             >
               <Send className="w-4 h-4" />
-              <span>{isSubmitting ? 'DISPATCHING...' : 'CONFIRM & BROADCAST SOS'}</span>
+              <span>{isSubmitting ? 'TRANSMITTING...' : 'BROADCAST SOS ALERT'}</span>
             </button>
           </div>
         </form>

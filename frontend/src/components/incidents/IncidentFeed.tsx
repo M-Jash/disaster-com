@@ -17,6 +17,7 @@ import {
   Apple,
   UserX,
   Shield,
+  ArrowRight,
 } from 'lucide-react';
 
 export const IncidentFeed: React.FC = () => {
@@ -39,52 +40,52 @@ export const IncidentFeed: React.FC = () => {
   const getCategoryIcon = (cat: string) => {
     switch (cat) {
       case 'MEDICAL':
-        return <HeartPulse className="w-4 h-4 text-rose-400" />;
+        return <HeartPulse className="w-4 h-4 text-red-600" />;
       case 'TRAPPED':
-        return <LifeBuoy className="w-4 h-4 text-amber-400" />;
+        return <LifeBuoy className="w-4 h-4 text-amber-600" />;
       case 'FIRE':
-        return <Flame className="w-4 h-4 text-orange-400" />;
+        return <Flame className="w-4 h-4 text-[#ff4e18]" />;
       case 'FLOOD':
-        return <Waves className="w-4 h-4 text-blue-400" />;
+        return <Waves className="w-4 h-4 text-blue-600" />;
       case 'FOOD_WATER':
-        return <Apple className="w-4 h-4 text-emerald-400" />;
+        return <Apple className="w-4 h-4 text-emerald-600" />;
       case 'MISSING_PERSON':
-        return <UserX className="w-4 h-4 text-purple-400" />;
+        return <UserX className="w-4 h-4 text-purple-600" />;
       default:
-        return <AlertOctagon className="w-4 h-4 text-slate-400" />;
+        return <AlertOctagon className="w-4 h-4 text-slate-600" />;
     }
   };
 
   const getStatusBadge = (status: IncidentStatus) => {
     switch (status) {
       case 'NEW':
-        return <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-950 text-red-400 border border-red-800">NEW</span>;
+        return <span className="px-3 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#ff4e18] text-white">NEW</span>;
       case 'ACKNOWLEDGED':
-        return <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-950 text-amber-400 border border-amber-800">ACKNOWLEDGED</span>;
+        return <span className="px-3 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300">ACKNOWLEDGED</span>;
       case 'IN_PROGRESS':
-        return <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-cyan-950 text-cyan-400 border border-cyan-800">IN PROGRESS</span>;
+        return <span className="px-3 py-0.5 rounded-full text-[11px] font-mono font-bold bg-blue-100 text-blue-900 border border-blue-300">IN PROGRESS</span>;
       case 'RESOLVED':
-        return <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">RESOLVED</span>;
+        return <span className="px-3 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">RESOLVED</span>;
     }
   };
 
   return (
     <div className="space-y-4">
       {/* Filters Toolbar */}
-      <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md space-y-3">
-        <div className="flex items-center space-x-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-          <Filter className="w-4 h-4 text-cyan-400" />
+      <div className="p-6 rounded-[32px] bg-[#eaf1f1] text-slate-900 border border-white/80 shadow-md space-y-4">
+        <div className="flex items-center space-x-2 text-xs font-mono font-black text-slate-900 uppercase tracking-wider">
+          <Filter className="w-4 h-4 text-[#ff4e18]" />
           <span>Incident Triage Filters ({filteredIncidents.length} matching)</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
           {/* Status Filter */}
           <div>
-            <label className="block text-slate-400 mb-1">Status</label>
+            <label className="block text-slate-600 font-bold mb-1.5">Status</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white focus:outline-none focus:border-cyan-500"
+              className="w-full px-4 py-2.5 rounded-full bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-[#ff4e18] shadow-sm font-semibold"
             >
               <option value="ALL">All Statuses</option>
               <option value="NEW">New (Unassigned)</option>
@@ -96,11 +97,11 @@ export const IncidentFeed: React.FC = () => {
 
           {/* Category Filter */}
           <div>
-            <label className="block text-slate-400 mb-1">Category</label>
+            <label className="block text-slate-600 font-bold mb-1.5">Category</label>
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white focus:outline-none focus:border-cyan-500"
+              className="w-full px-4 py-2.5 rounded-full bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-[#ff4e18] shadow-sm font-semibold"
             >
               <option value="ALL">All Categories</option>
               <option value="MEDICAL">Medical</option>
@@ -115,11 +116,11 @@ export const IncidentFeed: React.FC = () => {
 
           {/* Priority Filter */}
           <div>
-            <label className="block text-slate-400 mb-1">Priority</label>
+            <label className="block text-slate-600 font-bold mb-1.5">Priority</label>
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white focus:outline-none focus:border-cyan-500"
+              className="w-full px-4 py-2.5 rounded-full bg-white border border-slate-300 text-slate-900 focus:outline-none focus:border-[#ff4e18] shadow-sm font-semibold"
             >
               <option value="ALL">All Priorities</option>
               <option value="CRITICAL">Critical</option>
@@ -132,38 +133,38 @@ export const IncidentFeed: React.FC = () => {
 
       {/* Incidents Feed List */}
       {filteredIncidents.length === 0 ? (
-        <div className="p-12 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-2">
-          <AlertOctagon className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-base font-bold text-slate-300">No Incidents Found</h3>
-          <p className="text-xs text-slate-500">
+        <div className="p-12 rounded-[32px] bg-[#eaf1f1] text-slate-900 border border-white/80 text-center space-y-2">
+          <AlertOctagon className="w-10 h-10 text-slate-400 mx-auto" />
+          <h3 className="text-base font-black text-slate-800 font-mono">No Incidents Found</h3>
+          <p className="text-xs text-slate-500 font-medium font-sans">
             No active SOS packets match your filter criteria, or no emergency has been broadcasted yet.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredIncidents.map((incident) => {
             const isResolved = incident.incident_status === 'RESOLVED';
             return (
               <div
                 key={incident.msg_id}
-                className={`p-5 rounded-2xl border transition shadow-lg flex flex-col justify-between ${
+                className={`p-6 rounded-[32px] border transition shadow-lg flex flex-col justify-between ${
                   isResolved
-                    ? 'bg-slate-900/40 border-slate-800/80 opacity-70'
-                    : 'bg-slate-900/90 border-red-900/40 hover:border-red-600/60'
+                    ? 'bg-[#eaf1f1]/70 border-slate-200 opacity-80'
+                    : 'bg-[#eaf1f1] border-white/80 hover:bg-[#f1f7f7]'
                 }`}
               >
                 <div>
                   {/* Top Bar */}
-                  <div className="flex items-center justify-between mb-2.5">
-                    <div className="flex items-center space-x-2">
-                      <div className="p-2 rounded-lg bg-slate-800 border border-slate-700">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="p-2.5 rounded-full bg-white border border-slate-200 shadow-sm">
                         {getCategoryIcon(incident.category)}
                       </div>
                       <div>
-                        <span className="text-xs font-bold text-white tracking-wide">
+                        <span className="text-xs font-black text-slate-900 tracking-wide font-mono">
                           {incident.category}
                         </span>
-                        <div className="text-[11px] font-mono text-slate-400">
+                        <div className="text-[11px] font-mono text-slate-500 font-bold">
                           {incident.msg_id}
                         </div>
                       </div>
@@ -175,27 +176,27 @@ export const IncidentFeed: React.FC = () => {
                   </div>
 
                   {/* Message Content */}
-                  <p className="text-sm text-slate-100 font-medium leading-relaxed mb-3">
+                  <p className="text-sm text-slate-800 font-medium leading-relaxed mb-4 font-sans">
                     "{incident.text}"
                   </p>
 
                   {/* Location Info */}
                   {incident.location_desc && (
-                    <div className="mb-3 flex items-center space-x-1.5 text-xs text-slate-300 bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
-                      <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                      <span className="truncate">{incident.location_desc}</span>
+                    <div className="mb-3 flex items-center space-x-1.5 text-xs text-slate-700 bg-white p-3 rounded-2xl border border-slate-200 font-mono">
+                      <MapPin className="w-3.5 h-3.5 text-[#ff4e18] shrink-0" />
+                      <span className="truncate font-semibold">{incident.location_desc}</span>
                     </div>
                   )}
                 </div>
 
                 {/* Bottom Meta & Action */}
-                <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
-                  <div className="flex items-center space-x-3 text-[11px] text-slate-400 font-mono">
-                    <span className="flex items-center gap-1 text-cyan-400">
+                <div className="pt-3 border-t border-slate-300/70 flex items-center justify-between text-xs">
+                  <div className="flex items-center space-x-3 text-[11px] text-slate-500 font-mono">
+                    <span className="flex items-center gap-1 text-[#ff4e18] font-bold">
                       <Route className="w-3.5 h-3.5" />
                       {incident.hop_count} hops left
                     </span>
-                    <span className="flex items-center gap-1 text-slate-500">
+                    <span className="flex items-center gap-1 text-slate-400">
                       <Clock className="w-3.5 h-3.5" />
                       {new Date(incident.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
@@ -203,7 +204,7 @@ export const IncidentFeed: React.FC = () => {
 
                   <button
                     onClick={() => setSelectedIncident(incident)}
-                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold border border-slate-700 transition"
+                    className="px-4 py-1.5 rounded-full bg-[#ff4e18] hover:bg-[#ff6535] text-white text-xs font-bold font-mono transition shadow-sm"
                   >
                     Triage & Path Details →
                   </button>

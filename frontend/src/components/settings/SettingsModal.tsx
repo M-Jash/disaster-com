@@ -31,8 +31,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   useEffect(() => {
     if (selfNodeInfo) {
-      setNodeName(selfNodeInfo.node_name || '');
-      setRole(selfNodeInfo.role || 'RESPONDER');
+      setNodeName(sessionStorage.getItem('decs_user_name') || selfNodeInfo.node_name || '');
+      setRole((sessionStorage.getItem('decs_user_role') as UserRole) || selfNodeInfo.role || 'RESPONDER');
       setRelayEnabled(selfNodeInfo.relay_enabled ?? true);
       setDefaultHops(selfNodeInfo.default_hop_count || 5);
       setUdpPort(selfNodeInfo.udp_port || 50005);
@@ -46,8 +46,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     e.preventDefault();
     setIsSaving(true);
     try {
+      const cleanName = nodeName.trim();
+      if (cleanName) {
+        sessionStorage.setItem('decs_user_name', cleanName);
+      }
+      sessionStorage.setItem('decs_user_role', role);
+
       await updateSettings({
-        node_name: nodeName.trim() || undefined,
+        node_name: cleanName || undefined,
         role,
         relay_enabled: relayEnabled,
         default_hop_count: defaultHops,
@@ -63,57 +69,57 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-xl bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="w-full max-w-xl bg-[#eaf1f1] text-slate-900 border border-white/80 rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+        <div className="px-6 py-4 bg-white/70 border-b border-slate-300/70 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+            <div className="p-2.5 rounded-full bg-[#ff4e18] text-white">
               <Sliders className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white tracking-wide">
+              <h2 className="text-base font-black text-slate-900 tracking-wide font-mono">
                 DECS NODE CONFIGURATION
               </h2>
-              <p className="text-xs text-slate-400">
-                Identity: <span className="font-mono text-cyan-400 font-bold">{selfNodeInfo?.node_id || 'NODE-LOCAL'}</span>
+              <p className="text-xs text-slate-600 font-mono">
+                Identity: <span className="text-[#ff4e18] font-bold">{sessionStorage.getItem('decs_node_id') || selfNodeInfo?.node_id || 'NODE-LOCAL'}</span>
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white"
+            className="p-2 rounded-full bg-white text-slate-600 hover:text-slate-900 border border-slate-200 transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSave} className="p-6 overflow-y-auto space-y-5">
+        <form onSubmit={handleSave} className="p-6 overflow-y-auto space-y-5 font-mono">
           {savedSuccess && (
-            <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-800 text-xs text-emerald-300 flex items-center space-x-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <div className="p-3.5 rounded-2xl bg-emerald-100 border border-emerald-300 text-xs text-emerald-900 font-bold flex items-center space-x-2 animate-fadeIn">
+              <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
               <span>Configuration successfully saved and applied to networking socket.</span>
             </div>
           )}
 
           {/* 1. Node Callsign & Identity */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-              Node Callsign / Display Name
+            <label className="block text-xs font-black text-slate-800 uppercase tracking-wider">
+              Operator Callsign / Display Name
             </label>
             <input
               type="text"
               value={nodeName}
               onChange={(e) => setNodeName(e.target.value)}
               placeholder="e.g. Command Alpha / Rescue Unit 7"
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+              className="w-full px-5 py-3 rounded-full bg-white border border-slate-300 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#ff4e18]"
             />
           </div>
 
           {/* 2. Operational Role */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+            <label className="block text-xs font-black text-slate-800 uppercase tracking-wider">
               Operational Role
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -122,10 +128,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   key={r}
                   type="button"
                   onClick={() => setRole(r)}
-                  className={`py-2.5 rounded-xl text-xs font-bold border transition ${
+                  className={`py-2.5 rounded-full text-xs font-bold border transition ${
                     role === r
-                      ? 'bg-cyan-600 text-white border-cyan-500 shadow-md ring-1 ring-cyan-400'
-                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700'
+                      ? 'bg-[#ff4e18] text-white border-transparent shadow'
+                      : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
                   }`}
                 >
                   {r}
@@ -135,12 +141,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           </div>
 
           {/* 3. Automatic Multi-Hop Relay Mode Toggle */}
-          <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+          <div className="p-5 rounded-3xl bg-white border border-slate-200 flex items-center justify-between shadow-sm">
             <div>
-              <span className="text-xs font-bold text-white uppercase tracking-wide">
+              <span className="text-xs font-black text-slate-900 uppercase tracking-wide">
                 Multi-Hop Packet Relaying
               </span>
-              <p className="text-[11px] text-slate-400 mt-0.5">
+              <p className="text-[11px] text-slate-500 font-sans mt-0.5">
                 Automatically decrement TTL and rebroadcast packets when TTL &gt; 1
               </p>
             </div>
@@ -149,7 +155,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               type="button"
               onClick={() => setRelayEnabled(!relayEnabled)}
               className={`w-12 h-6 flex items-center rounded-full p-1 transition duration-300 ${
-                relayEnabled ? 'bg-cyan-600 justify-end' : 'bg-slate-800 justify-start'
+                relayEnabled ? 'bg-[#ff4e18] justify-end' : 'bg-slate-300 justify-start'
               }`}
             >
               <span className="bg-white w-4 h-4 rounded-full shadow-md transform"></span>
@@ -157,10 +163,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           </div>
 
           {/* 4. Default TTL / Hop Count */}
-          <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+          <div className="p-5 rounded-3xl bg-white border border-slate-200 space-y-2 shadow-sm">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-slate-300">Default Hop Count (TTL):</span>
-              <span className="font-mono font-bold text-cyan-400">{defaultHops} Hops</span>
+              <span className="font-black text-slate-900">Default Hop Count (TTL):</span>
+              <span className="font-bold text-[#ff4e18]">{defaultHops} Hops</span>
             </div>
             <input
               type="range"
@@ -168,42 +174,42 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               max={12}
               value={defaultHops}
               onChange={(e) => setDefaultHops(parseInt(e.target.value))}
-              className="w-full accent-cyan-500"
+              className="w-full accent-[#ff4e18]"
             />
           </div>
 
           {/* 5. Socket Port & Broadcast IP */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">
+              <label className="block text-xs font-black text-slate-800 mb-1">
                 UDP Socket Port
               </label>
               <input
                 type="number"
                 value={udpPort}
                 onChange={(e) => setUdpPort(parseInt(e.target.value) || 50005)}
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white font-mono"
+                className="w-full px-4 py-2.5 rounded-full bg-white border border-slate-300 text-xs text-slate-900"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">
+              <label className="block text-xs font-black text-slate-800 mb-1">
                 Broadcast Target IP
               </label>
               <input
                 type="text"
                 value={broadcastIp}
                 onChange={(e) => setBroadcastIp(e.target.value)}
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white font-mono"
+                className="w-full px-4 py-2.5 rounded-full bg-white border border-slate-300 text-xs text-slate-900"
               />
             </div>
           </div>
 
-          {/* 6. Dangerous Actions */}
-          <div className="p-4 rounded-2xl bg-red-950/20 border border-red-900/40 flex items-center justify-between text-xs">
+          {/* 6. Session Reset Action */}
+          <div className="p-5 rounded-3xl bg-red-50 border border-red-200 flex items-center justify-between text-xs">
             <div>
-              <span className="font-semibold text-red-300">Reset Local Session History</span>
-              <p className="text-[11px] text-red-400/80">Purges messages, duplicate cache, and sniffer logs.</p>
+              <span className="font-bold text-red-900">Reset Local Session History</span>
+              <p className="text-[11px] text-red-700 font-sans">Purges messages, duplicate cache, and sniffer logs.</p>
             </div>
             <button
               type="button"
@@ -212,7 +218,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   clearHistory();
                 }
               }}
-              className="px-3 py-1.5 rounded-xl bg-red-900/40 hover:bg-red-800 text-red-200 border border-red-700/60 font-semibold transition"
+              className="px-4 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white font-bold transition"
             >
               Reset Data
             </button>
@@ -223,7 +229,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition"
+              className="px-6 py-2.5 rounded-full bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold transition border border-slate-200"
             >
               Cancel
             </button>
@@ -231,7 +237,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <button
               type="submit"
               disabled={isSaving}
-              className="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white text-xs font-bold shadow-lg shadow-cyan-950 transition"
+              className="px-7 py-2.5 rounded-full bg-[#ff4e18] hover:bg-[#ff6535] disabled:opacity-50 text-white text-xs font-bold shadow-md shadow-[#ff4e18]/40 transition active:scale-95"
             >
               {isSaving ? 'Saving...' : 'Save Configuration'}
             </button>

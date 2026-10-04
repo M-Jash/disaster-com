@@ -44,6 +44,7 @@ export const api = {
     category?: EmergencyCategory;
     location?: LocationData;
     sender_name?: string;
+    sender_id?: string;
     hop_count?: number;
   }) =>
     fetchJson<MessageItem>(`${API_BASE}/messages`, {
@@ -62,6 +63,7 @@ export const api = {
     priority?: PriorityLevel;
     location?: LocationData;
     sender_name?: string;
+    sender_id?: string;
     hop_count?: number;
   }) =>
     fetchJson<MessageItem>(`${API_BASE}/sos`, {

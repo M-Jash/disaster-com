@@ -85,7 +85,6 @@ class RelayEngine:
                 self.broadcast_ping()
             except Exception as e:
                 logger.debug("Heartbeat ping error: %s", e)
-            # Sleep with jitter
             time.sleep(self.settings.peer_heartbeat_interval + random.uniform(-1.0, 1.0))
 
     def broadcast_ping(self) -> None:
@@ -119,16 +118,18 @@ class RelayEngine:
         category: EmergencyCategory = "GENERAL",
         location: Optional[Location] = None,
         sender_name: Optional[str] = None,
+        sender_id: Optional[str] = None,
         hop_count: Optional[int] = None
     ) -> PacketSchema:
         """Create, record, and broadcast a local message or SOS alert"""
         hops = hop_count or self.settings.default_hop_count
-        msg_id = generate_msg_id(self.settings.node_id)
+        origin_node = sender_id or self.settings.node_id
+        msg_id = generate_msg_id(origin_node)
         name = sender_name or self.settings.node_name
 
         packet = PacketSchema(
             msg_id=msg_id,
-            sender=self.settings.node_id,
+            sender=origin_node,
             sender_name=name,
             type=msg_type,
             text=text,
@@ -137,10 +138,10 @@ class RelayEngine:
             priority=priority,
             category=category,
             location=location,
-            relay_path=[self.settings.node_id]
+            relay_path=[origin_node]
         )
 
-        # 1. Add to local duplicate cache so loopback is not reprocessed
+        # 1. Add to local duplicate cache
         self.dup_cache.add(msg_id)
 
         # 2. Persist to SQLite
@@ -157,7 +158,7 @@ class RelayEngine:
         self.db.log_event(
             event_type="SENT",
             msg_id=msg_id,
-            sender=self.settings.node_id,
+            sender=origin_node,
             details=f"Broadcast {msg_type} (Priority: {priority}, Initial Hops: {hops}, Success: {send_success})",
             raw_payload=raw_json_str,
             hop_count=hops
@@ -174,15 +175,6 @@ class RelayEngine:
 
     # --- Incoming Wire Packet Handling & Multi-Hop Relay ---
     def handle_incoming_packet(self, raw_bytes: bytes, addr: Tuple[str, int]) -> None:
-        """
-        Process raw packet received over UDP socket:
-        1. Validate byte size and JSON structure
-        2. Filter out self-loopbacks
-        3. Check duplicate cache (drop duplicates)
-        4. Persist valid message & update peer table
-        5. Relay packet if hop_count > 1 and relay is enabled
-        """
-        # 1. Validate payload size
         if len(raw_bytes) > MAX_PACKET_BYTES:
             self.db.log_event(
                 event_type="INVALID_PACKET",
@@ -191,7 +183,6 @@ class RelayEngine:
             self._notify_ws("TELEMETRY_UPDATE", {"event_type": "INVALID_PACKET"})
             return
 
-        # 2. Deserialize & validate schema
         try:
             packet = deserialize_packet(raw_bytes)
         except (MalformedPacketError, InvalidPacketSchemaError, PacketSizeExceededError) as e:
@@ -204,14 +195,8 @@ class RelayEngine:
             self._notify_ws("TELEMETRY_UPDATE", {"event_type": "INVALID_PACKET"})
             return
 
-        # 3. Filter out self-loopback transmissions
-        if packet.sender == self.settings.node_id:
-            # We already originated this packet
-            return
-
-        # 4. Check Duplicate Cache
+        # Check Duplicate Cache
         if self.dup_cache.is_duplicate(packet.msg_id):
-            # DROP DUPLICATE
             self.db.log_event(
                 event_type="DROPPED_DUPLICATE",
                 msg_id=packet.msg_id,
@@ -227,7 +212,7 @@ class RelayEngine:
             })
             return
 
-        # 5. NEW PACKET ACCEPTED
+        # New Packet Accepted
         raw_json_str = raw_bytes.decode("utf-8", errors="replace")
         self.db.log_event(
             event_type="RECEIVED",
@@ -238,7 +223,6 @@ class RelayEngine:
             hop_count=packet.hop_count
         )
 
-        # Update peer discovery node table
         self.db.upsert_node(
             node_id=packet.sender,
             node_name=packet.sender_name or "",
@@ -247,11 +231,9 @@ class RelayEngine:
             hop_count=packet.hop_count
         )
 
-        # If it's a message or SOS, save to local database
         if packet.type in ["NORMAL", "SOS", "STATUS"]:
             self.db.save_message(packet.model_dump())
 
-        # Notify UI clients of new packet arrival
         self._notify_ws("PACKET_RECEIVED", {
             "packet": packet.model_dump(),
             "event_type": "RECEIVED",
@@ -259,14 +241,11 @@ class RelayEngine:
             "nodes": self.db.get_nodes()
         })
 
-        # 6. MULTI-HOP RELAY LOGIC
-        # If this is a heartbeat ping, we do not multi-hop flood it
         if packet.type == "PING":
             return
 
         if self.settings.relay_enabled:
             if packet.hop_count > 1:
-                # Spawn relay worker with small collision-avoidance jitter
                 threading.Thread(
                     target=self._relay_worker,
                     args=(packet,),
@@ -274,7 +253,6 @@ class RelayEngine:
                     daemon=True
                 ).start()
             else:
-                # TTL Expired (hop_count reached 0 / 1)
                 self.db.log_event(
                     event_type="DROPPED_EXPIRED",
                     msg_id=packet.msg_id,
@@ -289,8 +267,6 @@ class RelayEngine:
                 })
 
     def _relay_worker(self, original_packet: PacketSchema) -> None:
-        """Background relay task: applies jitter, decrements TTL, appends path, and rebroadcasts"""
-        # Random jitter between 25ms and 75ms to prevent RF packet collision on shared Wi-Fi
         time.sleep(random.uniform(0.025, 0.075))
 
         new_hop = original_packet.hop_count - 1
@@ -328,7 +304,6 @@ class RelayEngine:
             logger.error("Failed to relay packet %s: %s", original_packet.msg_id, e)
 
     def _notify_ws(self, event_name: str, payload: Dict[str, Any]) -> None:
-        """Push real-time network events to all connected WebSocket clients"""
         if self.ws_broadcaster:
             try:
                 self.ws_broadcaster(event_name, payload)

@@ -232,12 +232,16 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
     senderName?: string,
     hops?: number
   ) => {
+    const finalSenderName = senderName || sessionStorage.getItem('decs_user_name') || 'Field-Node';
+    const finalSenderId = sessionStorage.getItem('decs_node_id') || undefined;
+
     const res = await api.sendMessage({
       text,
       priority,
       category,
       location,
-      sender_name: senderName,
+      sender_name: finalSenderName,
+      sender_id: finalSenderId,
       hop_count: hops,
     });
     setMessages((prev) => [res, ...prev.filter((m) => m.msg_id !== res.msg_id)]);
@@ -253,12 +257,16 @@ export const NetworkProvider: React.FC<{ children: React.ReactNode }> = ({ child
     senderName?: string,
     hops?: number
   ) => {
+    const finalSenderName = senderName || sessionStorage.getItem('decs_user_name') || 'SOS-Station';
+    const finalSenderId = sessionStorage.getItem('decs_node_id') || undefined;
+
     const res = await api.sendSOS({
       category,
       text,
       priority,
       location,
-      sender_name: senderName,
+      sender_name: finalSenderName,
+      sender_id: finalSenderId,
       hop_count: hops,
     });
     setIncidents((prev) => [res, ...prev.filter((i) => i.msg_id !== res.msg_id)]);

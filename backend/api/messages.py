@@ -8,7 +8,6 @@ from database import Database
 
 router = APIRouter(prefix="/api/messages", tags=["Messages"])
 
-# Dependencies injected by main app
 def get_db():
     from main import app_state
     return app_state.db
@@ -42,6 +41,7 @@ def send_message(
             category=req.category,
             location=req.location,
             sender_name=req.sender_name,
+            sender_id=req.sender_id,
             hop_count=req.hop_count
         )
         return MessageResponse(**packet.model_dump())

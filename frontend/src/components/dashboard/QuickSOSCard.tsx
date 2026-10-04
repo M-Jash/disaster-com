@@ -11,6 +11,8 @@ import {
   LifeBuoy,
   Send,
   MapPin,
+  ShieldAlert,
+  ArrowRight,
 } from 'lucide-react';
 
 interface QuickSOSCardProps {
@@ -25,13 +27,13 @@ export const QuickSOSCard: React.FC<QuickSOSCardProps> = ({ onOpenDetailedModal 
   const [isSending, setIsSending] = useState<boolean>(false);
   const [successNotice, setSuccessNotice] = useState<boolean>(false);
 
-  const categories: { id: EmergencyCategory; label: string; icon: any; color: string }[] = [
-    { id: 'MEDICAL', label: 'Medical', icon: HeartPulse, color: 'text-rose-400 border-rose-500/40 hover:bg-rose-950/40' },
-    { id: 'TRAPPED', label: 'Trapped', icon: LifeBuoy, color: 'text-amber-400 border-amber-500/40 hover:bg-amber-950/40' },
-    { id: 'FIRE', label: 'Fire', icon: Flame, color: 'text-orange-400 border-orange-500/40 hover:bg-orange-950/40' },
-    { id: 'FLOOD', label: 'Flood', icon: Waves, color: 'text-blue-400 border-blue-500/40 hover:bg-blue-950/40' },
-    { id: 'FOOD_WATER', label: 'Food/Water', icon: Apple, color: 'text-emerald-400 border-emerald-500/40 hover:bg-emerald-950/40' },
-    { id: 'MISSING_PERSON', label: 'Missing', icon: UserX, color: 'text-purple-400 border-purple-500/40 hover:bg-purple-950/40' },
+  const categories: { id: EmergencyCategory; label: string; icon: any }[] = [
+    { id: 'MEDICAL', label: 'Medical Aid', icon: HeartPulse },
+    { id: 'TRAPPED', label: 'Trapped / Debris', icon: LifeBuoy },
+    { id: 'FIRE', label: 'Fire / Hazard', icon: Flame },
+    { id: 'FLOOD', label: 'Flood / Water', icon: Waves },
+    { id: 'FOOD_WATER', label: 'Supplies / Food', icon: Apple },
+    { id: 'MISSING_PERSON', label: 'Missing Person', icon: UserX },
   ];
 
   const handleQuickSend = async (e: React.FormEvent) => {
@@ -57,34 +59,42 @@ export const QuickSOSCard: React.FC<QuickSOSCardProps> = ({ onOpenDetailedModal 
   };
 
   return (
-    <div className="p-5 rounded-2xl bg-gradient-to-br from-red-950/30 via-slate-900 to-slate-900 border border-red-900/40 shadow-xl relative overflow-hidden">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center space-x-2">
-          <div className="p-2 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30">
-            <AlertTriangle className="w-5 h-5 animate-pulse" />
+    <div className="p-6 sm:p-7 rounded-[32px] bg-[#eaf1f1] text-slate-900 border border-white/80 shadow-2xl relative overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div className="flex items-center space-x-3">
+          <div className="p-3 rounded-full bg-[#ff4e18] text-white shadow-md shadow-[#ff4e18]/40">
+            <ShieldAlert className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white tracking-wide">Emergency SOS Dispatch</h2>
-            <p className="text-xs text-slate-400">Broadcasts instant high-priority alert across local UDP mesh</p>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base sm:text-lg font-black tracking-tight text-slate-900 font-mono">
+                RAPID EMERGENCY SOS DISPATCH
+              </h2>
+              <span className="px-3 py-0.5 rounded-full text-[9px] font-mono font-bold bg-[#ff4e18] text-white">
+                HIGH PRIORITY
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 font-medium">Instant multi-hop UDP broadcast to all mesh transceivers</p>
           </div>
         </div>
 
         <button
           onClick={onOpenDetailedModal}
-          className="text-xs text-red-400 hover:text-red-300 font-medium underline underline-offset-2"
+          className="px-4 py-1.5 rounded-full bg-white hover:bg-slate-100 text-slate-800 text-xs font-mono font-bold border border-slate-300 shadow-sm transition flex items-center gap-1.5"
         >
-          Detailed Mode & GPS
+          <span>Detailed Mode & GPS</span>
+          <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
 
       {successNotice && (
-        <div className="mb-3 p-2.5 rounded-lg bg-emerald-950/60 border border-emerald-800 text-xs text-emerald-300 flex items-center justify-between animate-fadeIn">
+        <div className="mb-4 p-3.5 rounded-2xl bg-emerald-100 border border-emerald-300 text-xs font-mono font-bold text-emerald-900 flex items-center justify-between animate-fadeIn shadow-sm">
           <span>✓ SOS Alert broadcasted over UDP and added to active mesh relay queue.</span>
         </div>
       )}
 
-      {/* Category Pills */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-3.5">
+      {/* Category Pills - Bento Style */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-2.5 mb-5">
         {categories.map((cat) => {
           const Icon = cat.icon;
           const isSelected = selectedCategory === cat.id;
@@ -93,55 +103,58 @@ export const QuickSOSCard: React.FC<QuickSOSCardProps> = ({ onOpenDetailedModal 
               key={cat.id}
               type="button"
               onClick={() => setSelectedCategory(cat.id)}
-              className={`flex flex-col items-center justify-center p-2 rounded-xl border text-xs font-semibold transition ${
+              className={`flex items-center justify-center gap-2 px-3 py-3 rounded-full border text-xs font-mono font-bold transition-all duration-200 active:scale-95 ${
                 isSelected
-                  ? 'bg-red-600 text-white border-red-500 shadow-md shadow-red-950/50 scale-[1.02]'
-                  : `bg-slate-900/80 text-slate-300 ${cat.color}`
+                  ? 'bg-[#ff4e18] text-white border-[#ff4e18] shadow-lg shadow-[#ff4e18]/30 scale-[1.02]'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
               }`}
             >
-              <Icon className="w-4 h-4 mb-1" />
-              <span>{cat.label}</span>
+              <Icon className="w-4 h-4 shrink-0" />
+              <span className="truncate">{cat.label}</span>
             </button>
           );
         })}
       </div>
 
-      <form onSubmit={handleQuickSend} className="space-y-2.5">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+      <form onSubmit={handleQuickSend} className="space-y-3.5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="md:col-span-2">
             <input
               type="text"
               value={sosText}
               onChange={(e) => setSosText(e.target.value)}
-              placeholder={`Describe emergency details (e.g. 3 people stranded near bridge)...`}
-              className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700/80 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition"
+              placeholder={`Situation details (e.g. 3 people trapped on roof near collapsed bridge)...`}
+              className="w-full px-5 py-3.5 rounded-full bg-white border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#ff4e18] focus:ring-2 focus:ring-[#ff4e18]/20 transition font-sans shadow-sm"
             />
           </div>
 
           <div className="relative">
-            <MapPin className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" />
+            <MapPin className="w-4 h-4 text-slate-400 absolute left-4 top-4" />
             <input
               type="text"
               value={locationText}
               onChange={(e) => setLocationText(e.target.value)}
-              placeholder="Landmark / Sector / Room"
-              className="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-700/80 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-red-500 transition"
+              placeholder="Landmark / Sector / Room #"
+              className="w-full pl-11 pr-4 py-3.5 rounded-full bg-white border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#ff4e18] focus:ring-2 focus:ring-[#ff4e18]/20 transition font-sans shadow-sm"
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-1 text-xs">
-          <span className="text-slate-400">
-            Node: <strong className="text-slate-200">{selfNodeInfo?.node_id || 'NODE-LOCAL'}</strong> • Initial Hops: <strong>5</strong>
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs font-mono">
+          <span className="text-slate-600">
+            Broadcasting as: <strong className="text-slate-900">{sessionStorage.getItem('decs_user_name') || 'Local Node'}</strong> • Max TTL: <strong className="text-[#ff4e18]">5 Hops</strong>
           </span>
 
+          {/* Solid Orange Pill Button with Black Circle Icon */}
           <button
             type="submit"
             disabled={isSending}
-            className="flex items-center space-x-1.5 px-5 py-2 rounded-xl bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg shadow-red-950 transition"
+            className="flex items-center space-x-2.5 px-7 py-3.5 rounded-full bg-[#ff4e18] hover:bg-[#ff6230] disabled:opacity-50 text-white font-bold text-xs shadow-lg shadow-[#ff4e18]/40 transition-all transform hover:scale-[1.02] active:scale-[0.98] tracking-wider"
           >
-            <Send className="w-3.5 h-3.5" />
-            <span>{isSending ? 'BROADCASTING...' : 'BROADCAST SOS NOW'}</span>
+            <span>{isSending ? 'TRANSMITTING...' : 'BROADCAST SOS NOW'}</span>
+            <div className="w-5 h-5 rounded-full bg-black flex items-center justify-center text-white">
+              <Send className="w-3 h-3" />
+            </div>
           </button>
         </div>
       </form>

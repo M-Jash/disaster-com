@@ -45,6 +45,7 @@ class SendMessageRequest(BaseModel):
     category: EmergencyCategory = "GENERAL"
     location: Optional[Location] = None
     sender_name: Optional[str] = None
+    sender_id: Optional[str] = None
     hop_count: Optional[int] = Field(default=None, ge=1, le=16)
 
 
@@ -54,6 +55,7 @@ class SendSOSRequest(BaseModel):
     priority: PriorityLevel = "CRITICAL"
     location: Optional[Location] = None
     sender_name: Optional[str] = None
+    sender_id: Optional[str] = None
     hop_count: Optional[int] = Field(default=5, ge=1, le=16)
 
 
