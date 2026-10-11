@@ -70,6 +70,8 @@ class UpdateSettingsRequest(BaseModel):
     default_hop_count: Optional[int] = Field(None, ge=1, le=16)
     udp_port: Optional[int] = Field(None, ge=1024, le=65535)
     broadcast_ip: Optional[str] = None
+    firebase_enabled: Optional[bool] = None
+    firebase_key_path: Optional[str] = None
 
 
 class MessageResponse(BaseModel):

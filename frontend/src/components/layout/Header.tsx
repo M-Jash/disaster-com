@@ -12,6 +12,7 @@ import {
   LogOut,
   Activity,
   Zap,
+  Database,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -74,6 +75,17 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSOSModal, onOpenSettingsMo
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 shadow-inner">
             <Wifi className="w-3.5 h-3.5 text-emerald-400" />
             <span className="text-[10px] font-mono font-bold text-emerald-400">MESH ACTIVE</span>
+          </div>
+
+          <div className={`hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full shadow-inner ${
+            systemStatus?.firebase_connected
+              ? 'bg-amber-950/40 border border-amber-500/40 text-amber-300'
+              : 'bg-[#121826] border border-white/[0.08] text-slate-400'
+          }`}>
+            <Database className={`w-3.5 h-3.5 ${systemStatus?.firebase_connected ? 'text-amber-400' : 'text-slate-500'}`} />
+            <span className="text-[10px] font-mono font-bold">
+              {systemStatus?.firebase_connected ? 'FIREBASE: SYNCED' : 'FIREBASE: STANDBY'}
+            </span>
           </div>
 
           {/* User & Node Identity Badge */}

@@ -53,6 +53,8 @@ interface NetworkContextType {
     default_hop_count?: number;
     udp_port?: number;
     broadcast_ip?: string;
+    firebase_enabled?: boolean;
+    firebase_key_path?: string;
   }) => Promise<void>;
   runSimulation: (scenario: string, hops?: number, origin?: string, text?: string) => Promise<SimulationResult>;
   refreshAll: () => Promise<void>;

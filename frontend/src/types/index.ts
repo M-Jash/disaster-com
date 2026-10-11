@@ -92,6 +92,7 @@ export interface SystemStatus {
   default_hop_count: number;
   local_network: string;
   decs_engine: string;
+  firebase_connected?: boolean;
   ws_connections: number;
 }
 

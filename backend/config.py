@@ -36,6 +36,11 @@ class Settings:
     # Local Storage
     db_path: str = os.getenv("DECS_DB_PATH", "decs.db")
 
+    # Firebase Cloud Sync
+    firebase_enabled: bool = os.getenv("DECS_FIREBASE_ENABLED", "true").lower() == "true"
+    firebase_key_path: str = os.getenv("DECS_FIREBASE_KEY_PATH", "firebase-service-account.json")
+    firebase_project_id: Optional[str] = os.getenv("DECS_FIREBASE_PROJECT_ID", None)
+
     # API / Server
     api_port: int = int(os.getenv("DECS_API_PORT", "8000"))
     api_host: str = os.getenv("DECS_API_HOST", "0.0.0.0")

@@ -98,6 +98,8 @@ export const api = {
     default_hop_count?: number;
     udp_port?: number;
     broadcast_ip?: string;
+    firebase_enabled?: boolean;
+    firebase_key_path?: string;
   }) =>
     fetchJson<any>(`${API_BASE}/settings`, {
       method: 'PUT',

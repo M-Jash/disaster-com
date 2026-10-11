@@ -35,36 +35,29 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchDashboard, onE
               <Zap className="w-5 h-5 text-white fill-current" />
             </div>
             <span className="text-xl font-black tracking-wider text-white uppercase font-mono">
-              RAPID<span className="text-orange-400 font-semibold">CONNECT</span>
+              QUICK<span className="text-orange-400 font-semibold">CONNECT</span>
             </span>
           </div>
 
           <nav className="hidden md:flex items-center space-x-8 text-sm text-slate-300 font-medium">
             <button className="flex items-center gap-1.5 hover:text-orange-400 transition group">
-              <span>Features</span>
+              
               <ChevronDown className="w-3.5 h-3.5 text-slate-500 group-hover:text-orange-400 transition" />
             </button>
             <button className="flex items-center gap-1.5 hover:text-orange-400 transition group">
-              <span>Solutions</span>
+              
               <ChevronDown className="w-3.5 h-3.5 text-slate-500 group-hover:text-orange-400 transition" />
             </button>
             <button className="flex items-center gap-1.5 hover:text-orange-400 transition group">
-              <span>Mesh Protocol</span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-500 group-hover:text-orange-400 transition" />
             </button>
             <button className="flex items-center gap-1.5 hover:text-orange-400 transition group">
-              <span>Documentation</span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-500 group-hover:text-orange-400 transition" />
             </button>
           </nav>
 
           <div className="flex items-center space-x-3">
-            <button
-              onClick={onLaunchDashboard}
-              className="px-6 py-2 rounded-full bg-white/[0.05] hover:bg-orange-500/20 text-white hover:text-orange-300 text-xs font-bold tracking-wider uppercase border border-white/[0.12] hover:border-orange-500/40 transition shadow-sm font-mono active:scale-95"
-            >
-              LOGIN
-            </button>
+          
           </div>
         </div>
       </header>
@@ -104,12 +97,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchDashboard, onE
                 REQUEST A DEMO
               </button>
 
-              <button
-                onClick={onExploreDemo}
-                className="px-8 py-3.5 rounded-full bg-[#141a29]/90 hover:bg-[#1a2236] text-slate-200 hover:text-white font-bold text-xs tracking-wider uppercase border border-white/[0.12] hover:border-orange-500/40 transition-all shadow-md font-mono active:scale-[0.98]"
-              >
-                LEARN MORE
-              </button>
+              
             </div>
           </div>
 
@@ -146,7 +134,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchDashboard, onE
               </div>
 
               {/* HUD Badge: HQ Command */}
-              <div className="absolute top-4 right-4 bg-[#0d1322]/95 border border-orange-500/40 p-2.5 rounded-2xl shadow-xl z-20 flex items-center gap-2">
+              <div className="absolute bottom-4 right-4 bg-[#0d1322]/95 border border-orange-500/40 p-2.5 rounded-2xl shadow-xl z-20 flex items-center gap-2">
                 <div className="p-1.5 rounded-xl bg-orange-500/20 text-orange-400">
                   <Activity className="w-4 h-4" />
                 </div>
@@ -326,7 +314,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchDashboard, onE
           <div>
             <div className="flex items-center space-x-2.5 text-white font-bold mb-1">
               <Zap className="w-4 h-4 text-orange-500 fill-current" />
-              <span>RAPIDCONNECT • DECS EMERGENCY NETWORK</span>
+              <span>QUICKCONNECT • DECS EMERGENCY NETWORK</span>
             </div>
             <p className="text-slate-500">Autonomous UDP Broadcast Disaster Mesh • Port 50005</p>
           </div>

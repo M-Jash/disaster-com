@@ -1,3 +1,4 @@
+
 """
 DECS SQLite Local Persistence Database
 Disaster Emergency Communication System (CNIP Mini-Project)
@@ -7,6 +8,8 @@ import json
 import logging
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
+
+from firebase_client import firebase_client
 
 logger = logging.getLogger("decs.database")
 
@@ -133,7 +136,13 @@ class Database:
                 message_data.get("incident_status", "NEW")
             ))
             conn.commit()
-            return cursor.rowcount > 0
+            inserted = cursor.rowcount > 0
+            if inserted:
+                try:
+                    firebase_client.sync_message(dict(message_data))
+                except Exception as fb_err:
+                    logger.debug("Firebase message sync skipped: %s", fb_err)
+            return inserted
         except Exception as e:
             logger.error("Error saving message: %s", e)
             return False
@@ -210,7 +219,13 @@ class Database:
                 (new_status.upper(), msg_id)
             )
             conn.commit()
-            return cursor.rowcount > 0
+            updated = cursor.rowcount > 0
+            if updated:
+                try:
+                    firebase_client.sync_incident_status(msg_id, new_status.upper())
+                except Exception as fb_err:
+                    logger.debug("Firebase incident status sync skipped: %s", fb_err)
+            return updated
         finally:
             conn.close()
 
@@ -234,6 +249,18 @@ class Database:
                 last_hop_count = excluded.last_hop_count
             """, (node_id, node_name, role, ip_address, now, hop_count))
             conn.commit()
+            try:
+                firebase_client.sync_node({
+                    "node_id": node_id,
+                    "node_name": node_name,
+                    "role": role,
+                    "ip_address": ip_address,
+                    "last_seen": now,
+                    "status": "ACTIVE",
+                    "last_hop_count": hop_count
+                })
+            except Exception as fb_err:
+                logger.debug("Firebase node sync skipped: %s", fb_err)
         except Exception as e:
             logger.error("Error upserting node %s: %s", node_id, e)
         finally:

@@ -19,6 +19,7 @@ import uvicorn
 
 from config import settings, Settings
 from database import Database
+from firebase_client import firebase_client
 from networking.relay_engine import RelayEngine
 from api.websocket import ConnectionManager
 
@@ -58,6 +59,11 @@ async def lifespan(app: FastAPI):
 
     # 1. Initialize SQLite Database
     db = Database(db_path=settings.db_path)
+
+    # 1b. Initialize Firebase Cloud Sync
+    if getattr(settings, "firebase_enabled", True):
+        firebase_client.key_path = getattr(settings, "firebase_key_path", "firebase-service-account.json")
+        firebase_client.initialize()
 
     # 2. Initialize WebSocket Manager
     ws_manager = ConnectionManager()
@@ -142,6 +148,7 @@ def get_system_status():
         "default_hop_count": app_state.settings.default_hop_count,
         "local_network": "ACTIVE",
         "decs_engine": "ONLINE",
+        "firebase_connected": firebase_client.is_connected,
         "ws_connections": len(app_state.ws_manager.active_connections)
     }
 
@@ -164,7 +171,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 "node_name": app_state.settings.node_name,
                 "role": app_state.settings.role,
                 "stats": initial_stats,
-                "nodes": app_state.db.get_nodes()
+                "nodes": app_state.db.get_nodes(),
+                "firebase_connected": firebase_client.is_connected
             }
         })
         while True:

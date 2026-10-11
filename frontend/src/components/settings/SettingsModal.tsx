@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   RotateCcw,
+  Database,
 } from 'lucide-react';
 
 interface SettingsModalProps {
@@ -18,7 +19,7 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
-  const { selfNodeInfo, stats, updateSettings, clearHistory } = useNetwork();
+  const { selfNodeInfo, stats, systemStatus, updateSettings, clearHistory } = useNetwork();
 
   const [nodeName, setNodeName] = useState<string>('');
   const [role, setRole] = useState<UserRole>('RESPONDER');
@@ -26,6 +27,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [defaultHops, setDefaultHops] = useState<number>(5);
   const [udpPort, setUdpPort] = useState<number>(50005);
   const [broadcastIp, setBroadcastIp] = useState<string>('255.255.255.255');
+  const [firebaseEnabled, setFirebaseEnabled] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
 
@@ -37,6 +39,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       setDefaultHops(selfNodeInfo.default_hop_count || 5);
       setUdpPort(selfNodeInfo.udp_port || 50005);
       setBroadcastIp(selfNodeInfo.broadcast_ip || '255.255.255.255');
+      if (selfNodeInfo.firebase_enabled !== undefined) {
+        setFirebaseEnabled(selfNodeInfo.firebase_enabled);
+      }
     }
   }, [selfNodeInfo, isOpen]);
 
@@ -59,6 +64,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         default_hop_count: defaultHops,
         udp_port: Number(udpPort),
         broadcast_ip: broadcastIp.trim() || undefined,
+        firebase_enabled: firebaseEnabled,
       });
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 2500);
@@ -205,7 +211,49 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             </div>
           </div>
 
-          {/* 6. Session Reset Action */}
+          {/* 6. Firebase Cloud Synchronization */}
+          <div className="p-5 rounded-3xl bg-white border border-slate-200 space-y-3 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <Database className="w-4 h-4 text-[#ff4e18]" />
+                  <span className="text-xs font-black text-slate-900 uppercase tracking-wide">
+                    Firebase Cloud Sync
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 font-sans mt-0.5">
+                  Replicate messages &amp; discovered nodes to Google Cloud Firestore
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setFirebaseEnabled(!firebaseEnabled)}
+                className={`w-12 h-6 flex items-center rounded-full p-1 transition duration-300 ${
+                  firebaseEnabled ? 'bg-[#ff4e18] justify-end' : 'bg-slate-300 justify-start'
+                }`}
+              >
+                <span className="bg-white w-4 h-4 rounded-full shadow-md transform"></span>
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px]">
+              <span className="text-slate-600">Cloud Status:</span>
+              <span className={`font-bold px-2.5 py-0.5 rounded-full ${
+                systemStatus?.firebase_connected
+                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                  : 'bg-amber-100 text-amber-800 border border-amber-300'
+              }`}>
+                {systemStatus?.firebase_connected ? 'CONNECTED & SYNCING' : 'OFFLINE / STANDBY'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="text-slate-600">Credentials Key:</span>
+              <span className="text-slate-800 font-mono text-[10px]">backend/firebase-service-account.json</span>
+            </div>
+          </div>
+
+          {/* 7. Session Reset Action */}
           <div className="p-5 rounded-3xl bg-red-50 border border-red-200 flex items-center justify-between text-xs">
             <div>
               <span className="font-bold text-red-900">Reset Local Session History</span>

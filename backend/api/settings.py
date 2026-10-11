@@ -20,8 +20,13 @@ def get_db():
     return app_state.db
 
 
+def get_firebase_client():
+    from firebase_client import firebase_client
+    return firebase_client
+
+
 @router.get("")
-def get_current_settings(settings = Depends(get_settings)):
+def get_current_settings(settings = Depends(get_settings), fb_client = Depends(get_firebase_client)):
     """Get active DECS system configuration"""
     return {
         "node_id": settings.node_id,
@@ -33,7 +38,10 @@ def get_current_settings(settings = Depends(get_settings)):
         "max_payload_bytes": settings.max_payload_bytes,
         "relay_enabled": settings.relay_enabled,
         "peer_heartbeat_interval": settings.peer_heartbeat_interval,
-        "duplicate_cache_ttl": settings.duplicate_cache_ttl
+        "duplicate_cache_ttl": settings.duplicate_cache_ttl,
+        "firebase_enabled": getattr(settings, "firebase_enabled", True),
+        "firebase_key_path": getattr(settings, "firebase_key_path", "firebase-service-account.json"),
+        "firebase_connected": fb_client.is_connected
     }
 
 
@@ -42,7 +50,8 @@ def update_settings(
     req: UpdateSettingsRequest,
     settings = Depends(get_settings),
     relay_engine = Depends(get_relay_engine),
-    db: Database = Depends(get_db)
+    db: Database = Depends(get_db),
+    fb_client = Depends(get_firebase_client)
 ):
     """Dynamically modify runtime settings"""
     if req.node_name is not None:
@@ -56,6 +65,14 @@ def update_settings(
     if req.broadcast_ip is not None:
         settings.broadcast_ip = req.broadcast_ip
         relay_engine.udp_node.broadcast_ip = req.broadcast_ip
+    if req.firebase_enabled is not None:
+        settings.firebase_enabled = req.firebase_enabled
+        fb_client.enabled = req.firebase_enabled
+        if req.firebase_enabled and not fb_client.is_connected:
+            fb_client.initialize()
+    if req.firebase_key_path is not None:
+        settings.firebase_key_path = req.firebase_key_path
+        fb_client.key_path = req.firebase_key_path
 
     # If UDP port changed, restart socket
     if req.udp_port is not None and req.udp_port != settings.udp_port:
@@ -66,5 +83,6 @@ def update_settings(
         if not success:
             raise HTTPException(status_code=500, detail=f"Failed to bind new UDP port {req.udp_port}")
 
-    relay_engine._notify_ws("SETTINGS_UPDATED", {"settings": get_current_settings(settings)})
-    return {"status": "success", "settings": get_current_settings(settings)}
+    updated_settings = get_current_settings(settings, fb_client)
+    relay_engine._notify_ws("SETTINGS_UPDATED", {"settings": updated_settings})
+    return {"status": "success", "settings": updated_settings}
